@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BTL_QuanLySinhVien.Models
 {
-    public class Teacher : Controller
+    public class Teacher 
     {
         [Key]
         public string TeacherId { get; set; } = string.Empty; 
