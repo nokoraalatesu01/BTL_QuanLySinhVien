@@ -1,0 +1,79 @@
+@page
+@model BTL_QuanLySinhVien.Pages.Admin.Users.IndexModel
+
+@{
+    ViewData["Title"] = "Quản lý tài khoản";
+}
+
+<h1>Quản lý tài khoản</h1>
+<p class="page-description">Tạo tài khoản sinh viên hoặc giảng viên. Mật khẩu được xử lý bởi ASP.NET Identity.</p>
+
+<section aria-labelledby="create-account-heading">
+    <h2 id="create-account-heading">Tạo tài khoản</h2>
+    <form method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="Input.FullName" class="control-label">Họ và tên</label>
+            <input asp-for="Input.FullName" class="form-control" maxlength="100" autocomplete="name" />
+            <span asp-validation-for="Input.FullName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Input.Email" class="control-label">Email / tên đăng nhập</label>
+            <input asp-for="Input.Email" class="form-control" type="email" maxlength="256" autocomplete="username" />
+            <span asp-validation-for="Input.Email" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Input.Password" class="control-label">Mật khẩu khởi tạo</label>
+            <input asp-for="Input.Password" class="form-control" autocomplete="new-password" />
+            <span asp-validation-for="Input.Password" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Input.Role" class="control-label">Vai trò</label>
+            <select asp-for="Input.Role" class="form-control">
+                <option value="">-- Chọn vai trò --</option>
+                <option value="Student">Sinh viên</option>
+                <option value="Teacher">Giảng viên</option>
+            </select>
+            <span asp-validation-for="Input.Role" class="text-danger"></span>
+        </div>
+        <button type="submit" class="button button-primary">Tạo tài khoản</button>
+    </form>
+</section>
+
+<section aria-labelledby="accounts-heading">
+    <h2 id="accounts-heading">Danh sách tài khoản</h2>
+    <div class="table-responsive" role="region" aria-label="Danh sách tài khoản người dùng" tabindex="0">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Họ và tên</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th>Xác nhận email</th>
+                    <th>Trạng thái tài khoản</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Accounts.Count == 0)
+                {
+                    <tr>
+                        <td colspan="5">Chưa có tài khoản.</td>
+                    </tr>
+                }
+                @foreach (var account in Model.Accounts)
+                {
+                    var isLocked = account.LockoutEnabled
+                        && account.LockoutEnd is DateTimeOffset lockoutEnd
+                        && lockoutEnd > DateTimeOffset.UtcNow;
+                    <tr>
+                        <td>@(string.IsNullOrWhiteSpace(account.FullName) ? "—" : account.FullName)</td>
+                        <td>@(account.Email ?? account.UserName ?? "—")</td>
+                        <td>@(account.Roles.Count == 0 ? "Chưa gán vai trò" : string.Join(", ", account.Roles))</td>
+                        <td>@(account.EmailConfirmed ? "Đã xác nhận" : "Chưa xác nhận")</td>
+                        <td>@(isLocked ? "Đang khóa" : "Không bị khóa")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

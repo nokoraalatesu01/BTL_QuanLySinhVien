@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using BTL_QuanLySinhVien.Data;
 using BTL_QuanLySinhVien.Models;
+using BTL_QuanLySinhVien.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+builder.Services.AddScoped<EnrollmentProtectedDeletionService>();
 
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -26,7 +28,17 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddDefaultTokenProviders()
     .AddDefaultUI(); 
 
-builder.Services.AddRazorPages();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+});
+
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.AuthorizeFolder("/StudentsPages", "AdminOnly");
+    options.Conventions.AuthorizeFolder("/TeachersPages", "AdminOnly");
+    options.Conventions.AuthorizeFolder("/CoursesPages", "AdminOnly");
+});
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -55,16 +67,7 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-    try
-    {
-        await SeedData.Initialize(services);
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Đã xảy ra lỗi khi khởi tạo cơ sở dữ liệu.");
-    }
+    await SeedData.Initialize(scope.ServiceProvider, app.Configuration);
 }
 
 app.Run();

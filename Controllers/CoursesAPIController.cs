@@ -1,16 +1,24 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BTL_QuanLySinhVien.Models;
 using BTL_QuanLySinhVien.Data;
+using BTL_QuanLySinhVien.Services;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Roles = "Admin")]
 public class CoursesAPIController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
-    public CoursesAPIController(ApplicationDbContext context)
+    private readonly EnrollmentProtectedDeletionService _deletionService;
+
+    public CoursesAPIController(
+        ApplicationDbContext context,
+        EnrollmentProtectedDeletionService deletionService)
     {
         _context = context;
+        _deletionService = deletionService;
     }
 
     // GET: api/Course
@@ -80,16 +88,24 @@ public class CoursesAPIController : ControllerBase
     [HttpDelete("{courseid}")]
     public async Task<IActionResult> DeleteCourse(string? courseid)
     {
-        var course = await _context.Courses.FindAsync(courseid);
-        if (course == null)
+        if (string.IsNullOrWhiteSpace(courseid))
         {
             return NotFound();
         }
 
-        _context.Courses.Remove(course);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
+        var outcome = await _deletionService.DeleteCourseAsync(courseid);
+        return outcome.Status switch
+        {
+            ProtectedDeleteStatus.Deleted => NoContent(),
+            ProtectedDeleteStatus.NotFound => NotFound(),
+            ProtectedDeleteStatus.HasEnrollments => Conflict(new ProblemDetails
+            {
+                Status = StatusCodes.Status409Conflict,
+                Title = "Không thể xóa môn học",
+                Detail = "Môn học còn sinh viên đã đăng ký. Hãy xử lý các dữ liệu liên quan trước."
+            }),
+            _ => throw new InvalidOperationException("Unexpected course deletion result.")
+        };
     }
 
     private bool CourseExists(string? courseid)

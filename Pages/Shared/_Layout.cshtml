@@ -49,6 +49,15 @@
                     <span class="nav-icon" aria-hidden="true">MH</span>
                     <span>Môn học</span>
                 </a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/Users") ? "active" : null)"
+                       asp-page="/Admin/Users/Index"
+                       aria-current="@(Context.Request.Path.StartsWithSegments("/Admin/Users") ? "page" : null)">
+                        <span class="nav-icon" aria-hidden="true">TK</span>
+                        <span>Tài khoản</span>
+                    </a>
+                }
             </nav>
             <div class="sidebar-note">
                 Quản lý hồ sơ và chương trình đào tạo

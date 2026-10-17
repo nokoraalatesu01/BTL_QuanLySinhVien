@@ -1,16 +1,24 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BTL_QuanLySinhVien.Models;
 using BTL_QuanLySinhVien.Data;
+using BTL_QuanLySinhVien.Services;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Roles = "Admin")]
 public class StudentsAPIController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
-    public StudentsAPIController(ApplicationDbContext context)
+    private readonly EnrollmentProtectedDeletionService _deletionService;
+
+    public StudentsAPIController(
+        ApplicationDbContext context,
+        EnrollmentProtectedDeletionService deletionService)
     {
         _context = context;
+        _deletionService = deletionService;
     }
 
     // GET: api/Student
@@ -80,16 +88,24 @@ public class StudentsAPIController : ControllerBase
     [HttpDelete("{studentid}")]
     public async Task<IActionResult> DeleteStudent(string? studentid)
     {
-        var student = await _context.Students.FindAsync(studentid);
-        if (student == null)
+        if (string.IsNullOrWhiteSpace(studentid))
         {
             return NotFound();
         }
 
-        _context.Students.Remove(student);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
+        var outcome = await _deletionService.DeleteStudentAsync(studentid);
+        return outcome.Status switch
+        {
+            ProtectedDeleteStatus.Deleted => NoContent(),
+            ProtectedDeleteStatus.NotFound => NotFound(),
+            ProtectedDeleteStatus.HasEnrollments => Conflict(new ProblemDetails
+            {
+                Status = StatusCodes.Status409Conflict,
+                Title = "Không thể xóa sinh viên",
+                Detail = "Sinh viên còn học phần đã đăng ký. Hãy xử lý các dữ liệu liên quan trước."
+            }),
+            _ => throw new InvalidOperationException("Unexpected student deletion result.")
+        };
     }
 
     private bool StudentExists(string? studentid)

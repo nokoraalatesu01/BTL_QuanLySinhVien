@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BTL_QuanLySinhVien.Models;
@@ -5,6 +6,7 @@ using BTL_QuanLySinhVien.Data;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Roles = "Admin")]
 public class TeachersAPIController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
