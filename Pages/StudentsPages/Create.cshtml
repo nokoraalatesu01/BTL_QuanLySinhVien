@@ -2,17 +2,17 @@
 @model BTL_QuanLySinhVien.Pages.StudentsPages.CreateModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Thêm sinh viên";
 }
 
-<h1>Create</h1>
+<h1>Thêm sinh viên</h1>
 
-<h4>Student</h4>
+<p class="page-description">Nhập thông tin hồ sơ sinh viên.</p>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
                 <span class="text-danger">*</span>
                 <label asp-for="Student.StudentId" class="control-label"></label>
@@ -37,12 +37,12 @@
                 <span asp-validation-for="Student.Major" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <button type="submit" class="button button-primary">Lưu sinh viên</button>
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-page="./Index">Back to List</a>
+    <a class="button button-secondary" asp-page="./Index">Quay lại danh sách</a>
 </div>

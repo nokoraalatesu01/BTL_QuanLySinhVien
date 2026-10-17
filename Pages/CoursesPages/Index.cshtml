@@ -8,8 +8,9 @@
 <h1>Danh sách môn học</h1>
 
 <p>
-    <a class="btn btn-primary" asp-page="Create">Thêm môn học</a>
+    <a class="button button-primary" asp-page="Create">Thêm môn học</a>
 </p>
+<div class="table-responsive" role="region" aria-label="Danh sách môn học" tabindex="0">
 <table class="table">
     <thead>
         <tr>
@@ -42,11 +43,14 @@
                 @item.Enrollments?.Count ?? 0
             </td>
             <td>
-                <a asp-page="./Edit" asp-route-id="@item.CourseId">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.CourseId">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.CourseId">Delete</a>
+                <div class="table-actions">
+                    <a asp-page="./Details" asp-route-id="@item.CourseId">Chi tiết</a>
+                    <a asp-page="./Edit" asp-route-id="@item.CourseId">Sửa</a>
+                    <a class="text-danger" asp-page="./Delete" asp-route-id="@item.CourseId">Xóa</a>
+                </div>
             </td>
         </tr>
 }
     </tbody>
 </table>
+</div>

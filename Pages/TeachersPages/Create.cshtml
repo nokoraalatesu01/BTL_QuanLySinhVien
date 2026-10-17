@@ -2,47 +2,51 @@
 @model BTL_QuanLySinhVien.Pages.TeachersPages.CreateModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Thêm giảng viên";
 }
 
-<h1>Create</h1>
+<h1>Thêm giảng viên</h1>
 
-<h4>Teacher</h4>
+<p class="page-description">Nhập thông tin hồ sơ giảng viên.</p>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
                 <span class="text-danger">*</span>
                 <label asp-for="Teacher.TeacherId" class="control-label"></label>
-                <input asp-for="Teacher.TeacherId" class="form-control" aria-required="true" required />
+                <input asp-for="Teacher.TeacherId" class="form-control" maxlength="450"
+                       aria-required="true" required />
                 <span asp-validation-for="Teacher.TeacherId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <span class="text-danger">*</span>
                 <label asp-for="Teacher.FullName" class="control-label"></label>
-                <input asp-for="Teacher.FullName" class="form-control" aria-required="true" required />
+                <input asp-for="Teacher.FullName" class="form-control" maxlength="100"
+                       aria-required="true" required />
                 <span asp-validation-for="Teacher.FullName" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Teacher.AcademicTitle" class="control-label"></label>
-                <input asp-for="Teacher.AcademicTitle" class="form-control" />
+                <input asp-for="Teacher.AcademicTitle" class="form-control" maxlength="50"
+                       aria-required="true" required />
                 <span asp-validation-for="Teacher.AcademicTitle" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <span class="text-danger">*</span>
                 <label asp-for="Teacher.Department" class="control-label"></label>
-                <input asp-for="Teacher.Department" class="form-control" aria-required="true" required />
+                <input asp-for="Teacher.Department" class="form-control" maxlength="50"
+                       aria-required="true" required />
                 <span asp-validation-for="Teacher.Department" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <button type="submit" class="button button-primary">Lưu giảng viên</button>
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-page="./Index">Back to List</a>
+    <a class="button button-secondary" asp-page="./Index">Quay lại danh sách</a>
 </div>

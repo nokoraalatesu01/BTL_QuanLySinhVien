@@ -14,7 +14,7 @@ public class DetailsModel : PageModel
         _context = context;
     }
 
-    public Teacher Teacher { get; set; } = default!;
+    public Teacher Teacher { get; private set; } = default!;
 
     public async Task<IActionResult> OnGetAsync(string? id)
     {

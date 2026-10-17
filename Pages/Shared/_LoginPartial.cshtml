@@ -3,27 +3,34 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-<ul class="navbar-nav">
+<ul class="account-nav">
     @if (SignInManager.IsSignedIn(User))
     {
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index">
-                Xin chào @UserManager.GetUserName(User)!
+        var userName = UserManager.GetUserName(User);
+        var initial = string.IsNullOrWhiteSpace(userName) ? "U" : userName[..1].ToUpperInvariant();
+
+        <li class="account-greeting">
+            <a asp-area="Identity" asp-page="/Account/Manage/Index">
+                <span class="account-avatar" aria-hidden="true">@initial</span>
+                <span class="account-copy">
+                    <span class="account-label">Tài khoản</span>
+                    <span class="account-name">@userName</span>
+                </span>
             </a>
         </li>
-        <li class="nav-item">
-            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })" method="post">
-                <button type="submit" class="nav-link btn btn-link text-dark">Đăng xuất</button>
+        <li>
+            <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })" method="post">
+                <button type="submit" class="account-action">Đăng xuất</button>
             </form>
         </li>
     }
     else
     {
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Đăng ký</a>
+        <li>
+            <a class="account-action account-action-secondary" asp-area="Identity" asp-page="/Account/Register">Đăng ký</a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Đăng nhập</a>
+        <li>
+            <a class="account-action" asp-area="Identity" asp-page="/Account/Login">Đăng nhập</a>
         </li>
     }
 </ul>

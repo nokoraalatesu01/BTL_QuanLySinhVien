@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
+using System.Data;
+using System.Security.Cryptography;
+using System.Text.Json;
 using BTL_QuanLySinhVien.Models;
 using BTL_QuanLySinhVien.Data;
 
@@ -9,14 +13,24 @@ namespace BTL_QuanLySinhVien.Pages.StudentsPages;
 public class EditModel : PageModel
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<EditModel> _logger;
+    private readonly IDataProtector _versionProtector;
 
-    public EditModel(ApplicationDbContext context)
+    public EditModel(
+        ApplicationDbContext context,
+        ILogger<EditModel> logger,
+        IDataProtectionProvider dataProtectionProvider)
     {
         _context = context;
+        _logger = logger;
+        _versionProtector = dataProtectionProvider.CreateProtector("StudentEditVersion");
     }
 
     [BindProperty]
     public Student Student { get; set; } = default!;
+
+    [BindProperty]
+    public string? OriginalValuesToken { get; set; }
 
     public async Task<IActionResult> OnGetAsync(string? id)
     {
@@ -31,41 +45,116 @@ public class EditModel : PageModel
             return NotFound();
         }
         Student = student;
+        OriginalValuesToken = ProtectVersion(student);
         return Page();
     }
 
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see https://aka.ms/RazorPagesCRUD.
-    public async Task<IActionResult> OnPostAsync()
+    public async Task<IActionResult> OnPostAsync(string? id)
     {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            return NotFound();
+        }
+
         if (!ModelState.IsValid)
         {
             return Page();
         }
 
-        _context.Attach(Student).State = EntityState.Modified;
+        if (string.IsNullOrWhiteSpace(OriginalValuesToken))
+        {
+            ModelState.AddModelError(string.Empty, "Phiên sửa không hợp lệ. Vui lòng tải lại biểu mẫu.");
+            return Page();
+        }
+
+        StudentVersion originalVersion;
+        try
+        {
+            originalVersion = JsonSerializer.Deserialize<StudentVersion>(
+                _versionProtector.Unprotect(OriginalValuesToken))
+                ?? throw new JsonException("Student edit version is empty.");
+        }
+        catch (CryptographicException ex)
+        {
+            _logger.LogWarning(ex, "Token phiên sửa sinh viên không hợp lệ cho {StudentId}.", id);
+            ModelState.AddModelError(string.Empty, "Phiên sửa không hợp lệ. Vui lòng tải lại biểu mẫu.");
+            return Page();
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "Không thể đọc phiên sửa sinh viên {StudentId}.", id);
+            ModelState.AddModelError(string.Empty, "Phiên sửa không hợp lệ. Vui lòng tải lại biểu mẫu.");
+            return Page();
+        }
+
+        if (!string.Equals(originalVersion.StudentId, id, StringComparison.Ordinal))
+        {
+            ModelState.AddModelError(string.Empty, "Mã sinh viên không khớp với phiên sửa. Vui lòng mở lại hồ sơ.");
+            Student.StudentId = id;
+            return Page();
+        }
+
+        await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        var existingStudent = await _context.Students
+            .FirstOrDefaultAsync(student => student.StudentId == id);
+        if (existingStudent is null)
+        {
+            return NotFound();
+        }
+
+        if (originalVersion != StudentVersion.From(existingStudent))
+        {
+            await transaction.RollbackAsync();
+            Student = existingStudent;
+            OriginalValuesToken = ProtectVersion(existingStudent);
+            ModelState.Clear();
+            ModelState.AddModelError(string.Empty,
+                "Hồ sơ đã được thay đổi sau khi bạn mở biểu mẫu. Thông tin mới nhất đang được hiển thị; hãy kiểm tra rồi lưu lại.");
+            return Page();
+        }
+
+        existingStudent.FullName = Student.FullName;
+        existingStudent.DateOfBirth = Student.DateOfBirth;
+        existingStudent.Major = Student.Major;
 
         try
         {
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            TempData["StatusMessage"] = $"Đã cập nhật sinh viên {existingStudent.FullName}.";
+            return RedirectToPage("./Index");
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbUpdateConcurrencyException ex)
         {
-            if (!StudentExists(Student.StudentId))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
+            await transaction.RollbackAsync();
+            _logger.LogWarning(ex, "Xung đột khi cập nhật hồ sơ sinh viên {StudentId}.", id);
+            ModelState.AddModelError(string.Empty,
+                "Hồ sơ đã bị xóa hoặc thay đổi bởi người khác. Vui lòng tải lại và kiểm tra trước khi lưu.");
+            Student.StudentId = id;
+            return Page();
         }
-
-        return RedirectToPage("./Index");
+        catch (DbUpdateException ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Không thể cập nhật hồ sơ sinh viên {StudentId}.", id);
+            ModelState.AddModelError(string.Empty, "Không thể lưu thay đổi. Vui lòng thử lại.");
+            Student.StudentId = existingStudent.StudentId;
+            return Page();
+        }
     }
 
-    private bool StudentExists(string id)
+    private string ProtectVersion(Student student)
     {
-        return _context.Students.Any(e => e.StudentId == id);
+        return _versionProtector.Protect(JsonSerializer.Serialize(StudentVersion.From(student)));
+    }
+
+    private sealed record StudentVersion(
+        string StudentId,
+        string FullName,
+        DateTime DateOfBirth,
+        string Major)
+    {
+        public static StudentVersion From(Student student) =>
+            new(student.StudentId, student.FullName, student.DateOfBirth, student.Major);
     }
 }

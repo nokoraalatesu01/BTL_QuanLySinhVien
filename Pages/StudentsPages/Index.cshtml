@@ -8,51 +8,106 @@
 <h1>Danh sách sinh viên</h1>
 
 <p>
-    <a class="btn btn-primary" asp-page="Create">Thêm sinh viên</a>
+    <a class="button button-primary" asp-page="Create">Thêm sinh viên</a>
 </p>
+
+<form method="get" class="student-filter">
+    <div class="student-search-field">
+        <label for="searchTerm">Tìm theo mã sinh viên hoặc họ tên</label>
+        <input id="searchTerm" name="searchTerm" value="@Model.SearchTerm" class="form-control"
+               type="search" maxlength="100" placeholder="Nhập mã sinh viên hoặc họ tên" />
+    </div>
+    <div class="student-filter-actions">
+        <label for="pageSize">Số dòng</label>
+        <select id="pageSize" name="pageSize" class="form-control">
+            @foreach (var size in new[] { 10, 25, 50 })
+            {
+                <option value="@size" selected="@(Model.PageSize == size)">@size</option>
+            }
+        </select>
+        <button class="button button-primary" type="submit">Tìm kiếm</button>
+        <a class="button button-secondary" asp-page="./Index">Làm mới</a>
+    </div>
+</form>
+
+@if (!string.IsNullOrWhiteSpace(Model.LoadError))
+{
+    <div class="status-message status-message-error" role="alert">@Model.LoadError</div>
+}
+
+<div class="table-responsive" role="region" aria-label="Danh sách sinh viên" tabindex="0">
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Student[0].FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Student[0].DateOfBirth)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Student[0].Major)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Student[0].Enrollments)
-            </th>
-            <th></th>
+            <th scope="col">Mã sinh viên</th>
+            <th scope="col">Họ và tên</th>
+            <th scope="col">Ngày sinh</th>
+            <th scope="col">Ngành</th>
+            <th scope="col">Số học phần</th>
+            <th scope="col"><span class="visually-hidden">Thao tác</span></th>
         </tr>
     </thead>
     <tbody>
-@if (Model.Student.Count == 0)
-{
-        <tr><td colspan="5">Chưa có sinh viên. Hãy thêm sinh viên đầu tiên.</td></tr>
-}
-@foreach (var item in Model.Student) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DateOfBirth)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Major)
-            </td>
-            <td>
-                @item.Enrollments?.Count ?? 0
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.StudentId">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.StudentId">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.StudentId">Delete</a>
-            </td>
-        </tr>
-}
+        @if (Model.Student.Count == 0)
+        {
+            <tr>
+                <td colspan="6">
+                    @(string.IsNullOrWhiteSpace(Model.SearchTerm)
+                        ? "Chưa có sinh viên. Hãy thêm sinh viên đầu tiên."
+                        : "Không tìm thấy sinh viên phù hợp với từ khóa.")
+                </td>
+            </tr>
+        }
+        @foreach (var item in Model.Student)
+        {
+            <tr>
+                <td>@item.StudentId</td>
+                <td>@item.FullName</td>
+                <td>@item.DateOfBirth.ToString("dd/MM/yyyy")</td>
+                <td>@item.Major</td>
+                <td>@(item.Enrollments?.Count ?? 0)</td>
+                <td>
+                    <div class="table-actions">
+                        <a asp-page="./Details" asp-route-id="@item.StudentId">Chi tiết</a>
+                        <a asp-page="./Edit" asp-route-id="@item.StudentId">Sửa</a>
+                        <a class="text-danger" asp-page="./Delete" asp-route-id="@item.StudentId">Xóa</a>
+                    </div>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="pagination" aria-label="Phân trang danh sách sinh viên">
+        <span class="pagination-summary">
+            Trang @Model.PageNumber / @Model.TotalPages · @Model.TotalCount sinh viên
+        </span>
+        <div class="pagination-pages">
+            @if (Model.PageNumber > 1)
+            {
+                <a asp-page="./Index" asp-route-searchTerm="@Model.SearchTerm"
+                   asp-route-pageSize="@Model.PageSize" asp-route-pageNumber="@(Model.PageNumber - 1)">Trước</a>
+            }
+            @for (var pageIndex = Model.StartPage; pageIndex <= Model.EndPage; pageIndex++)
+            {
+                if (pageIndex == Model.PageNumber)
+                {
+                    <span class="current-page" aria-current="page">@pageIndex</span>
+                }
+                else
+                {
+                    <a asp-page="./Index" asp-route-searchTerm="@Model.SearchTerm"
+                       asp-route-pageSize="@Model.PageSize" asp-route-pageNumber="@pageIndex">@pageIndex</a>
+                }
+            }
+            @if (Model.PageNumber < Model.TotalPages)
+            {
+                <a asp-page="./Index" asp-route-searchTerm="@Model.SearchTerm"
+                   asp-route-pageSize="@Model.PageSize" asp-route-pageNumber="@(Model.PageNumber + 1)">Sau</a>
+            }
+        </div>
+    </nav>
+}

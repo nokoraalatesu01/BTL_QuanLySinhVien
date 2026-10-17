@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using BTL_QuanLySinhVien.Models;
 using BTL_QuanLySinhVien.Data;
 
@@ -9,10 +10,12 @@ namespace BTL_QuanLySinhVien.Pages.StudentsPages;
 public class DeleteModel : PageModel
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<DeleteModel> _logger;
 
-    public DeleteModel(ApplicationDbContext context)
+    public DeleteModel(ApplicationDbContext context, ILogger<DeleteModel> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     [BindProperty]
@@ -25,7 +28,9 @@ public class DeleteModel : PageModel
             return NotFound();
         }
 
-        var student = await _context.Students.FirstOrDefaultAsync(m => m.StudentId == id);
+        var student = await _context.Students
+            .Include(student => student.Enrollments)
+            .FirstOrDefaultAsync(student => student.StudentId == id);
         if (student is null)
         {
             return NotFound();
@@ -40,19 +45,46 @@ public class DeleteModel : PageModel
 
     public async Task<IActionResult> OnPostAsync(string? id)
     {
-        if (id is null)
+        if (string.IsNullOrWhiteSpace(id))
         {
             return NotFound();
         }
 
-        var student = await _context.Students.FindAsync(id);
-        if (student != null)
+        await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        var student = await _context.Students
+            .Include(student => student.Enrollments)
+            .FirstOrDefaultAsync(student => student.StudentId == id);
+        if (student is null)
         {
-            Student = student;
-            _context.Students.Remove(Student);
-            await _context.SaveChangesAsync();
+            return NotFound();
         }
 
-        return RedirectToPage("./Index");
+        if (await _context.Enrollments.AnyAsync(enrollment => enrollment.StudentId == id))
+        {
+            await transaction.RollbackAsync();
+            Student = student;
+            ModelState.AddModelError(string.Empty,
+                "Không thể xóa sinh viên vì còn học phần đã đăng ký. Hãy xử lý các dữ liệu liên quan trước.");
+            return Page();
+        }
+
+        _context.Students.Remove(student);
+        try
+        {
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            TempData["StatusMessage"] = $"Đã xóa sinh viên {student.FullName}.";
+            return RedirectToPage("./Index");
+        }
+        catch (DbUpdateException ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Không thể xóa hồ sơ sinh viên {StudentId}.", id);
+            Student = student;
+            ModelState.AddModelError(string.Empty,
+                "Không thể xóa sinh viên do dữ liệu liên quan hoặc lỗi cơ sở dữ liệu. Không xóa dữ liệu liên quan.");
+            return Page();
+        }
+
     }
 }

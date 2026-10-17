@@ -1,65 +1,53 @@
 ﻿@page
 @model BTL_QuanLySinhVien.Pages.IndexModel
+@inject IWebHostEnvironment HostEnvironment
 @{
-    ViewData["Title"] = "Trang chủ Quản trị";
+    ViewData["Title"] = "Tổng quan";
 }
 
-<div class="text-center my-5">
-    <h1 class="display-4 text-primary font-weight-bold">Hệ Thống Quản Lý Đào Tạo</h1>
-    <p class="lead text-secondary">Chào mừng bạn đến với nền tảng Enterprise Web API & Razor Pages (.NET 10)</p>
-    <hr class="my-4">
-</div>
+<section class="page-heading">
+    <p class="eyebrow">TRANG CHỦ</p>
+    <h1>Chào mừng đến với hệ thống</h1>
+    <p class="page-description">Chọn một chức năng để bắt đầu quản lý dữ liệu đào tạo.</p>
+</section>
 
-<div class="row text-center">
-    <!-- Quản lý Sinh viên -->
-    <div class="col-md-3 mb-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body d-flex flex-column justify-content-between">
-                <div>
-                    <h3 class="card-title text-success">Sinh Viên</h3>
-                    <p class="card-text text-muted">Quản lý hồ sơ, thông tin và danh sách sinh viên toàn trường.</p>
-                </div>
-                <a href="/StudentsPages" class="btn btn-outline-success mt-3">Truy cập Quản lý</a>
-            </div>
+<div class="dashboard-grid">
+    <section class="dashboard-card">
+        <div class="dashboard-card-icon student-icon" aria-hidden="true">SV</div>
+        <div class="dashboard-card-copy">
+            <h2>Sinh viên</h2>
+            <p>Quản lý hồ sơ và thông tin sinh viên.</p>
         </div>
-    </div>
+        <a class="button button-secondary" asp-page="/StudentsPages/Index">Mở danh sách</a>
+    </section>
 
-    <!-- Quản lý Giảng viên -->
-    <div class="col-md-3 mb-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body d-flex flex-column justify-content-between">
-                <div>
-                    <h3 class="card-title text-info">Giảng Viên</h3>
-                    <p class="card-text text-muted">Quản lý thông tin giảng viên, học hàm học vị và khoa công tác.</p>
-                </div>
-                <a href="/TeachersPages" class="btn btn-outline-info mt-3">Truy cập Quản lý</a>
-            </div>
+    <section class="dashboard-card">
+        <div class="dashboard-card-icon teacher-icon" aria-hidden="true">GV</div>
+        <div class="dashboard-card-copy">
+            <h2>Giảng viên</h2>
+            <p>Quản lý thông tin giảng viên.</p>
         </div>
-    </div>
+        <a class="button button-secondary" asp-page="/TeachersPages/Index">Mở danh sách</a>
+    </section>
 
-    <!-- Quản lý Môn học -->
-    <div class="col-md-3 mb-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body d-flex flex-column justify-content-between">
-                <div>
-                    <h3 class="card-title text-warning">Môn Học</h3>
-                    <p class="card-text text-muted">Danh mục học phần, số tín chỉ và chương trình đào tạo.</p>
-                </div>
-                <a href="/CoursesPages" class="btn btn-outline-warning mt-3">Truy cập Quản lý</a>
-            </div>
+    <section class="dashboard-card">
+        <div class="dashboard-card-icon course-icon" aria-hidden="true">MH</div>
+        <div class="dashboard-card-copy">
+            <h2>Môn học</h2>
+            <p>Quản lý danh mục môn học và số tín chỉ.</p>
         </div>
-    </div>
+        <a class="button button-secondary" asp-page="/CoursesPages/Index">Mở danh sách</a>
+    </section>
 
-    <!-- Tài liệu API (Swagger) -->
-    <div class="col-md-3 mb-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body d-flex flex-column justify-content-between">
-                <div>
-                    <h3 class="card-title text-danger">Web API</h3>
-                    <p class="card-text text-muted">Tài liệu Swagger OpenAPI phục vụ cho Mobile App / Client.</p>
-                </div>
-                <a href="/swagger" target="_blank" class="btn btn-outline-danger mt-3">Mở Swagger UI</a>
+    @if (HostEnvironment.IsDevelopment())
+    {
+        <section class="dashboard-card">
+            <div class="dashboard-card-icon api-icon" aria-hidden="true">API</div>
+            <div class="dashboard-card-copy">
+                <h2>Tài liệu API</h2>
+                <p>Swagger OpenAPI dành cho ứng dụng khách.</p>
             </div>
-        </div>
-    </div>
+            <a class="button button-secondary" href="/swagger" target="_blank" rel="noopener noreferrer">Mở Swagger</a>
+        </section>
+    }
 </div>

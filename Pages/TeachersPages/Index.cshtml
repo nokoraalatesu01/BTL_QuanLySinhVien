@@ -8,45 +8,118 @@
 <h1>Danh sách giảng viên</h1>
 
 <p>
-    <a class="btn btn-primary" asp-page="Create">Thêm giảng viên</a>
+    <a class="button button-primary" asp-page="Create">Thêm giảng viên</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Teacher[0].FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Teacher[0].AcademicTitle)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Teacher[0].Department)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@if (Model.Teacher.Count == 0)
+
+<form method="get" class="student-filter">
+    <div class="student-search-field">
+        <label for="searchTerm">Tìm theo mã hoặc họ tên</label>
+        <input id="searchTerm" name="searchTerm" value="@Model.SearchTerm"
+               class="form-control" type="search" maxlength="450"
+               placeholder="Nhập mã giảng viên hoặc họ tên" />
+    </div>
+    <div class="student-search-field">
+        <label for="department">Khoa/bộ môn</label>
+        <select id="department" name="department" class="form-control">
+            <option value="">Tất cả khoa/bộ môn</option>
+            @foreach (var department in Model.Departments)
+            {
+                <option value="@department" selected="@(department == Model.SelectedDepartment)">
+                    @department
+                </option>
+            }
+        </select>
+    </div>
+    <div class="student-filter-actions">
+        <label for="pageSize">Số dòng</label>
+        <select id="pageSize" name="pageSize" class="form-control">
+            @foreach (var size in new[] { 10, 25, 50 })
+            {
+                <option value="@size" selected="@(size == Model.PageSize)">@size</option>
+            }
+        </select>
+    </div>
+        <button type="submit" class="button button-primary">Tìm kiếm</button>
+        <a class="button button-secondary" asp-page="./Index">Làm mới</a>
+</form>
+
+@if (Model.LoadError is not null)
 {
-        <tr><td colspan="4">Chưa có giảng viên. Hãy thêm giảng viên đầu tiên.</td></tr>
+    <div class="status-message status-message-error" role="alert">@Model.LoadError</div>
 }
-@foreach (var item in Model.Teacher) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.AcademicTitle)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Department)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.TeacherId">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.TeacherId">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.TeacherId">Delete</a>
-            </td>
-        </tr>
+
+<div class="table-responsive" role="region" aria-label="Danh sách giảng viên" tabindex="0">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã giảng viên</th>
+                <th>Họ và tên</th>
+                <th>Học hàm/học vị</th>
+                <th>Khoa/bộ môn</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.LoadError is null && Model.Teacher.Count == 0)
+            {
+                <tr>
+                    <td colspan="5">@(Model.TotalCount == 0
+                        ? "Chưa có giảng viên phù hợp. Hãy thêm giảng viên hoặc điều chỉnh bộ lọc."
+                        : "Không có giảng viên ở trang này.")</td>
+                </tr>
+            }
+            @foreach (var item in Model.Teacher)
+            {
+                <tr>
+                    <td>@item.TeacherId</td>
+                    <td>@item.FullName</td>
+                    <td>@item.AcademicTitle</td>
+                    <td>@item.Department</td>
+                    <td>
+                        <div class="table-actions">
+                            <a asp-page="./Details" asp-route-id="@item.TeacherId">Chi tiết</a>
+                            <a asp-page="./Edit" asp-route-id="@item.TeacherId">Sửa</a>
+                            <a class="text-danger" asp-page="./Delete" asp-route-id="@item.TeacherId">Xóa</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="pagination" aria-label="Phân trang danh sách giảng viên">
+        <span class="pagination-summary">
+            Trang @Model.PageNumber / @Model.TotalPages · @Model.TotalCount giảng viên
+        </span>
+        <div class="pagination-pages">
+            @if (Model.PageNumber > 1)
+            {
+                <a asp-page="./Index" asp-route-searchTerm="@Model.SearchTerm"
+                   asp-route-department="@Model.SelectedDepartment" asp-route-pageSize="@Model.PageSize"
+                   asp-route-pageNumber="@(Model.PageNumber - 1)">Trước</a>
+            }
+            @for (var pageIndex = Model.StartPage; pageIndex <= Model.EndPage; pageIndex++)
+            {
+                if (pageIndex == Model.PageNumber)
+                {
+                    <span class="current-page" aria-current="page">@pageIndex</span>
+                }
+                else
+                {
+                    <a asp-page="./Index" asp-route-searchTerm="@Model.SearchTerm"
+                       asp-route-department="@Model.SelectedDepartment" asp-route-pageSize="@Model.PageSize"
+                       asp-route-pageNumber="@pageIndex">@pageIndex</a>
+                }
+            }
+            @if (Model.PageNumber < Model.TotalPages)
+            {
+                <a asp-page="./Index" asp-route-searchTerm="@Model.SearchTerm"
+                   asp-route-department="@Model.SelectedDepartment" asp-route-pageSize="@Model.PageSize"
+                   asp-route-pageNumber="@(Model.PageNumber + 1)">Sau</a>
+            }
+        </div>
+    </nav>
 }
-    </tbody>
-</table>

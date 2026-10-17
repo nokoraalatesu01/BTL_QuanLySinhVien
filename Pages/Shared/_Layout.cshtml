@@ -3,27 +3,72 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Quản lý sinh viên</title>
+    <meta name="theme-color" content="#12243a" />
+    <title>@ViewData["Title"] - Quản lý đào tạo</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-    <header class="site-header">
-        <nav class="navbar container" aria-label="Điều hướng chính">
-            <a class="navbar-brand" asp-page="/Index">Quản lý sinh viên</a>
-            <div class="navbar-links">
-                <a asp-page="/StudentsPages/Index">Sinh viên</a>
-                <a asp-page="/TeachersPages/Index">Giảng viên</a>
-                <a asp-page="/CoursesPages/Index">Môn học</a>
-            </div>
+    <header class="app-header">
+        <a class="brand" asp-page="/Index" aria-label="Trang chủ quản lý đào tạo">
+            <span class="brand-mark" aria-hidden="true">QL</span>
+            <span class="brand-copy">
+                <span class="brand-name">Quản lý đào tạo</span>
+                <span class="brand-caption">Cổng quản trị</span>
+            </span>
+        </a>
+        <div class="header-account">
             <partial name="_LoginPartial" />
-        </nav>
+        </div>
     </header>
-    <main class="container page-content">
-        @RenderBody()
-    </main>
-    <footer class="site-footer">
-        <div class="container">Hệ thống quản lý đào tạo</div>
-    </footer>
+
+    <div class="app-layout">
+        <aside class="sidebar" aria-label="Thanh điều hướng">
+            <p class="sidebar-heading">DANH MỤC</p>
+            <nav class="sidebar-nav" aria-label="Điều hướng chính">
+                <a class="sidebar-link @(Context.Request.Path == "/" ? "active" : null)"
+                   asp-page="/Index"
+                   aria-current="@(Context.Request.Path == "/" ? "page" : null)">
+                    <span class="nav-icon" aria-hidden="true">T</span>
+                    <span>Tổng quan</span>
+                </a>
+                <a class="sidebar-link @(Context.Request.Path.StartsWithSegments("/StudentsPages") ? "active" : null)"
+                   asp-page="/StudentsPages/Index"
+                   aria-current="@(Context.Request.Path.StartsWithSegments("/StudentsPages") ? "page" : null)">
+                    <span class="nav-icon" aria-hidden="true">SV</span>
+                    <span>Sinh viên</span>
+                </a>
+                <a class="sidebar-link @(Context.Request.Path.StartsWithSegments("/TeachersPages") ? "active" : null)"
+                   asp-page="/TeachersPages/Index"
+                   aria-current="@(Context.Request.Path.StartsWithSegments("/TeachersPages") ? "page" : null)">
+                    <span class="nav-icon" aria-hidden="true">GV</span>
+                    <span>Giảng viên</span>
+                </a>
+                <a class="sidebar-link @(Context.Request.Path.StartsWithSegments("/CoursesPages") ? "active" : null)"
+                   asp-page="/CoursesPages/Index"
+                   aria-current="@(Context.Request.Path.StartsWithSegments("/CoursesPages") ? "page" : null)">
+                    <span class="nav-icon" aria-hidden="true">MH</span>
+                    <span>Môn học</span>
+                </a>
+            </nav>
+            <div class="sidebar-note">
+                Quản lý hồ sơ và chương trình đào tạo
+            </div>
+        </aside>
+
+        <div class="workspace">
+            <main class="page-content">
+                @if (TempData["StatusMessage"] is string statusMessage)
+                {
+                    <div class="status-message" role="status">@statusMessage</div>
+                }
+                @RenderBody()
+            </main>
+            <footer class="site-footer">
+                <span>Hệ thống quản lý đào tạo</span>
+            </footer>
+        </div>
+    </div>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

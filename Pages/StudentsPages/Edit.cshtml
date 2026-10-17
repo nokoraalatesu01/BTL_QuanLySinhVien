@@ -2,18 +2,23 @@
 @model BTL_QuanLySinhVien.Pages.StudentsPages.EditModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Sửa thông tin sinh viên";
 }
 
-<h1>Edit</h1>
+<h1>Sửa thông tin sinh viên</h1>
 
-<h4>Student</h4>
+<p class="page-description">Cập nhật thông tin hồ sơ sinh viên.</p>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <form method="post" asp-route-id="@Model.Student.StudentId">
+            <div asp-validation-summary="All" class="text-danger"></div>
             <input type="hidden" asp-for="Student.StudentId" />
+            <input type="hidden" asp-for="OriginalValuesToken" />
+            <div class="form-group">
+                <label asp-for="Student.StudentId" class="control-label"></label>
+                <input class="form-control" value="@Model.Student.StudentId" readonly />
+            </div>
             <div class="form-group">
                 <span class="text-danger">*</span>
                 <label asp-for="Student.FullName" class="control-label"></label>
@@ -32,12 +37,12 @@
                 <span asp-validation-for="Student.Major" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <button type="submit" class="button button-primary">Lưu thay đổi</button>
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-page="./Index">Back to List</a>
+    <a class="button button-secondary" asp-page="./Index">Quay lại danh sách</a>
 </div>
