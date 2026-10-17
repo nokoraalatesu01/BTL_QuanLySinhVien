@@ -1,0 +1,40 @@
+@page
+@model BTL_QuanLySinhVien.Pages.CoursesPages.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>BTL_QuanLySinhVien.Models.Course</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Course.CourseName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Course.CourseName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Course.Credits)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Course.Credits)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Course.Enrollments)
+        </dt>
+        <dd class = "col-sm-10">
+            @Model.Course.Enrollments?.Count ?? 0
+        </dd>
+    </dl>
+    <form method="post">
+        <input type="hidden" asp-for="Course.CourseId" />
+        <input type="hidden" name="id" value="@Model.Course.CourseId" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-page="./Index">Back to List</a>
+    </form>
+</div>

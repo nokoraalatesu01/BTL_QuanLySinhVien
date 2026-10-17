@@ -1,0 +1,52 @@
+@page
+@model BTL_QuanLySinhVien.Pages.TeachersPages.IndexModel
+
+@{
+    ViewData["Title"] = "Giảng viên";
+}
+
+<h1>Danh sách giảng viên</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">Thêm giảng viên</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Teacher[0].FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Teacher[0].AcademicTitle)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Teacher[0].Department)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@if (Model.Teacher.Count == 0)
+{
+        <tr><td colspan="4">Chưa có giảng viên. Hãy thêm giảng viên đầu tiên.</td></tr>
+}
+@foreach (var item in Model.Teacher) {
+        <tr>
+            <td>
+                @Html.DisplayFor(model => item.FullName)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.AcademicTitle)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Department)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.TeacherId">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.TeacherId">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.TeacherId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

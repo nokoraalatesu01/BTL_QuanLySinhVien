@@ -58,7 +58,6 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
-        // Gọi hàm khởi tạo dữ liệu mẫu
         await SeedData.Initialize(services);
     }
     catch (Exception ex)

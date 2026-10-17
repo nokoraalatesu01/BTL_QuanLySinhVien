@@ -1,0 +1,58 @@
+@page
+@model BTL_QuanLySinhVien.Pages.StudentsPages.IndexModel
+
+@{
+    ViewData["Title"] = "Sinh viên";
+}
+
+<h1>Danh sách sinh viên</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">Thêm sinh viên</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Student[0].FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Student[0].DateOfBirth)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Student[0].Major)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Student[0].Enrollments)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@if (Model.Student.Count == 0)
+{
+        <tr><td colspan="5">Chưa có sinh viên. Hãy thêm sinh viên đầu tiên.</td></tr>
+}
+@foreach (var item in Model.Student) {
+        <tr>
+            <td>
+                @Html.DisplayFor(model => item.FullName)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.DateOfBirth)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Major)
+            </td>
+            <td>
+                @item.Enrollments?.Count ?? 0
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.StudentId">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.StudentId">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.StudentId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

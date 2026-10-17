@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Quản lý sinh viên</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="site-header">
+        <nav class="navbar container" aria-label="Điều hướng chính">
+            <a class="navbar-brand" asp-page="/Index">Quản lý sinh viên</a>
+            <div class="navbar-links">
+                <a asp-page="/StudentsPages/Index">Sinh viên</a>
+                <a asp-page="/TeachersPages/Index">Giảng viên</a>
+                <a asp-page="/CoursesPages/Index">Môn học</a>
+            </div>
+            <partial name="_LoginPartial" />
+        </nav>
+    </header>
+    <main class="container page-content">
+        @RenderBody()
+    </main>
+    <footer class="site-footer">
+        <div class="container">Hệ thống quản lý đào tạo</div>
+    </footer>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
