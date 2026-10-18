@@ -31,31 +31,49 @@
                     <span class="nav-icon" aria-hidden="true">T</span>
                     <span>Tổng quan</span>
                 </a>
-                <a class="sidebar-link @(Context.Request.Path.StartsWithSegments("/StudentsPages") ? "active" : null)"
-                   asp-page="/StudentsPages/Index"
-                   aria-current="@(Context.Request.Path.StartsWithSegments("/StudentsPages") ? "page" : null)">
-                    <span class="nav-icon" aria-hidden="true">SV</span>
-                    <span>Sinh viên</span>
-                </a>
-                <a class="sidebar-link @(Context.Request.Path.StartsWithSegments("/TeachersPages") ? "active" : null)"
-                   asp-page="/TeachersPages/Index"
-                   aria-current="@(Context.Request.Path.StartsWithSegments("/TeachersPages") ? "page" : null)">
-                    <span class="nav-icon" aria-hidden="true">GV</span>
-                    <span>Giảng viên</span>
-                </a>
-                <a class="sidebar-link @(Context.Request.Path.StartsWithSegments("/CoursesPages") ? "active" : null)"
-                   asp-page="/CoursesPages/Index"
-                   aria-current="@(Context.Request.Path.StartsWithSegments("/CoursesPages") ? "page" : null)">
-                    <span class="nav-icon" aria-hidden="true">MH</span>
-                    <span>Môn học</span>
-                </a>
                 @if (User.IsInRole("Admin"))
                 {
+                    <a class="sidebar-link @(Context.Request.Path.StartsWithSegments("/StudentsPages") ? "active" : null)"
+                       asp-page="/StudentsPages/Index"
+                       aria-current="@(Context.Request.Path.StartsWithSegments("/StudentsPages") ? "page" : null)">
+                        <span class="nav-icon" aria-hidden="true">SV</span>
+                        <span>Sinh viên</span>
+                    </a>
+                    <a class="sidebar-link @(Context.Request.Path.StartsWithSegments("/TeachersPages") ? "active" : null)"
+                       asp-page="/TeachersPages/Index"
+                       aria-current="@(Context.Request.Path.StartsWithSegments("/TeachersPages") ? "page" : null)">
+                        <span class="nav-icon" aria-hidden="true">GV</span>
+                        <span>Giảng viên</span>
+                    </a>
+                    <a class="sidebar-link @(Context.Request.Path.StartsWithSegments("/CoursesPages") ? "active" : null)"
+                       asp-page="/CoursesPages/Index"
+                       aria-current="@(Context.Request.Path.StartsWithSegments("/CoursesPages") ? "page" : null)">
+                        <span class="nav-icon" aria-hidden="true">MH</span>
+                        <span>Môn học</span>
+                    </a>
                     <a class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/Users") ? "active" : null)"
                        asp-page="/Admin/Users/Index"
                        aria-current="@(Context.Request.Path.StartsWithSegments("/Admin/Users") ? "page" : null)">
                         <span class="nav-icon" aria-hidden="true">TK</span>
                         <span>Tài khoản</span>
+                    </a>
+                }
+                else if (User.IsInRole("Teacher"))
+                {
+                    <a class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Dashboard/Teacher") ? "active" : null)"
+                       asp-page="/Dashboard/Teacher/Index"
+                       aria-current="@(Context.Request.Path.StartsWithSegments("/Dashboard/Teacher") ? "page" : null)">
+                        <span class="nav-icon" aria-hidden="true">GV</span>
+                        <span>Dashboard giảng viên</span>
+                    </a>
+                }
+                else if (User.IsInRole("Student"))
+                {
+                    <a class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Dashboard/Student") ? "active" : null)"
+                       asp-page="/Dashboard/Student/Index"
+                       aria-current="@(Context.Request.Path.StartsWithSegments("/Dashboard/Student") ? "page" : null)">
+                        <span class="nav-icon" aria-hidden="true">SV</span>
+                        <span>Dashboard sinh viên</span>
                     </a>
                 }
             </nav>

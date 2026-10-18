@@ -1,53 +1,23 @@
 ﻿@page
 @model BTL_QuanLySinhVien.Pages.IndexModel
-@inject IWebHostEnvironment HostEnvironment
 @{
-    ViewData["Title"] = "Tổng quan";
+    ViewData["Title"] = "Trang chủ";
 }
 
-<section class="page-heading">
-    <p class="eyebrow">TRANG CHỦ</p>
-    <h1>Chào mừng đến với hệ thống</h1>
-    <p class="page-description">Chọn một chức năng để bắt đầu quản lý dữ liệu đào tạo.</p>
-</section>
-
-<div class="dashboard-grid">
-    <section class="dashboard-card">
-        <div class="dashboard-card-icon student-icon" aria-hidden="true">SV</div>
-        <div class="dashboard-card-copy">
-            <h2>Sinh viên</h2>
-            <p>Quản lý hồ sơ và thông tin sinh viên.</p>
-        </div>
-        <a class="button button-secondary" asp-page="/StudentsPages/Index">Mở danh sách</a>
+@if (Model.HasUnsupportedRole)
+{
+    <section class="page-heading">
+        <p class="eyebrow">TÀI KHOẢN</p>
+        <h1>Tài khoản chưa được phân quyền</h1>
+        <p class="page-description">Vui lòng liên hệ quản trị viên để được cấp vai trò phù hợp.</p>
     </section>
-
-    <section class="dashboard-card">
-        <div class="dashboard-card-icon teacher-icon" aria-hidden="true">GV</div>
-        <div class="dashboard-card-copy">
-            <h2>Giảng viên</h2>
-            <p>Quản lý thông tin giảng viên.</p>
-        </div>
-        <a class="button button-secondary" asp-page="/TeachersPages/Index">Mở danh sách</a>
+}
+else
+{
+    <section class="page-heading">
+        <p class="eyebrow">TRANG CHỦ</p>
+        <h1>Chào mừng đến với hệ thống</h1>
+        <p class="page-description">Đăng nhập để truy cập dashboard theo vai trò của bạn.</p>
+        <a class="button button-primary" asp-area="Identity" asp-page="/Account/Login">Đăng nhập</a>
     </section>
-
-    <section class="dashboard-card">
-        <div class="dashboard-card-icon course-icon" aria-hidden="true">MH</div>
-        <div class="dashboard-card-copy">
-            <h2>Môn học</h2>
-            <p>Quản lý danh mục môn học và số tín chỉ.</p>
-        </div>
-        <a class="button button-secondary" asp-page="/CoursesPages/Index">Mở danh sách</a>
-    </section>
-
-    @if (HostEnvironment.IsDevelopment())
-    {
-        <section class="dashboard-card">
-            <div class="dashboard-card-icon api-icon" aria-hidden="true">API</div>
-            <div class="dashboard-card-copy">
-                <h2>Tài liệu API</h2>
-                <p>Swagger OpenAPI dành cho ứng dụng khách.</p>
-            </div>
-            <a class="button button-secondary" href="/swagger" target="_blank" rel="noopener noreferrer">Mở Swagger</a>
-        </section>
-    }
-</div>
+}

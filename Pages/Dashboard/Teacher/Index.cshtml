@@ -1,0 +1,31 @@
+@page
+@model BTL_QuanLySinhVien.Pages.Dashboard.Teacher.IndexModel
+
+@{
+    ViewData["Title"] = "Dashboard giảng viên";
+}
+
+<section class="page-heading">
+    <p class="eyebrow">GIẢNG VIÊN</p>
+    <h1>Dashboard giảng viên</h1>
+    @if (!Model.HasLinkedProfile)
+    {
+        <p class="page-description">Tài khoản của bạn chưa được liên kết với hồ sơ giảng viên. Vui lòng liên hệ quản trị viên.</p>
+    }
+    else
+    {
+        <p class="page-description">Thông tin hồ sơ giảng viên được liên kết với tài khoản của bạn.</p>
+    }
+</section>
+
+@if (Model.Profile is not null)
+{
+    <section class="dashboard-card">
+        <div class="dashboard-card-copy">
+            <h2>@Model.Profile.FullName</h2>
+            <p>Mã giảng viên: @Model.Profile.TeacherId</p>
+            <p>Học hàm/học vị: @Model.Profile.AcademicTitle</p>
+            <p>Khoa/bộ môn: @Model.Profile.Department</p>
+        </div>
+    </section>
+}

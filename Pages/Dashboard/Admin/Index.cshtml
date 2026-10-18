@@ -1,0 +1,66 @@
+@page
+@model BTL_QuanLySinhVien.Pages.Dashboard.Admin.IndexModel
+
+@{
+    ViewData["Title"] = "Dashboard quản trị";
+}
+
+<section class="page-heading">
+    <p class="eyebrow">ADMIN</p>
+    <h1>Dashboard quản trị</h1>
+    <p class="page-description">Tổng quan dữ liệu đào tạo và truy cập nhanh các chức năng quản trị.</p>
+</section>
+
+<div class="dashboard-grid">
+    <section class="dashboard-card">
+        <div class="dashboard-card-icon student-icon" aria-hidden="true">SV</div>
+        <div class="dashboard-card-copy">
+            <h2>Sinh viên</h2>
+            <p>@Model.StudentCount hồ sơ</p>
+        </div>
+        <a class="button button-secondary" asp-page="/StudentsPages/Index">Quản lý sinh viên</a>
+    </section>
+    <section class="dashboard-card">
+        <div class="dashboard-card-icon teacher-icon" aria-hidden="true">GV</div>
+        <div class="dashboard-card-copy">
+            <h2>Giảng viên</h2>
+            <p>@Model.TeacherCount hồ sơ</p>
+        </div>
+        <a class="button button-secondary" asp-page="/TeachersPages/Index">Quản lý giảng viên</a>
+    </section>
+    <section class="dashboard-card">
+        <div class="dashboard-card-icon course-icon" aria-hidden="true">MH</div>
+        <div class="dashboard-card-copy">
+            <h2>Môn học</h2>
+            <p>@Model.CourseCount môn học</p>
+        </div>
+        <a class="button button-secondary" asp-page="/CoursesPages/Index">Quản lý môn học</a>
+    </section>
+    <section class="dashboard-card">
+        <div class="dashboard-card-icon api-icon" aria-hidden="true">TK</div>
+        <div class="dashboard-card-copy">
+            <h2>Tài khoản</h2>
+            <p>@Model.AccountCount tài khoản</p>
+        </div>
+        <a class="button button-secondary" asp-page="/Admin/Users/Index">Quản lý tài khoản</a>
+    </section>
+</div>
+
+<section class="dashboard-card">
+    <div class="dashboard-card-copy">
+        <h2>Phân bố theo vai trò</h2>
+        @if (Model.RoleCounts.Count == 0)
+        {
+            <p>Chưa có tài khoản được gán vai trò.</p>
+        }
+        else
+        {
+            <ul>
+                @foreach (var roleCount in Model.RoleCounts)
+                {
+                    <li>@roleCount.Role: @roleCount.Count tài khoản</li>
+                }
+            </ul>
+        }
+    </div>
+</section>
