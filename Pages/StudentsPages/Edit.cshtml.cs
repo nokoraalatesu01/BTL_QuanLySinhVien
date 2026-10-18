@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection;
@@ -32,6 +33,8 @@ public class EditModel : PageModel
     [BindProperty]
     public string? OriginalValuesToken { get; set; }
 
+    public IList<SelectListItem> Majors { get; private set; } = [];
+
     public async Task<IActionResult> OnGetAsync(string? id)
     {
         if (id is null)
@@ -46,6 +49,7 @@ public class EditModel : PageModel
         }
         Student = student;
         OriginalValuesToken = ProtectVersion(student);
+        await LoadMajorsAsync();
         return Page();
     }
 
@@ -58,12 +62,21 @@ public class EditModel : PageModel
 
         if (!ModelState.IsValid)
         {
+            await LoadMajorsAsync();
+            return Page();
+        }
+
+        if (!await _context.Majors.AnyAsync(major => major.MajorId == Student.MajorId))
+        {
+            ModelState.AddModelError("Student.MajorId", "Vui lòng chọn chuyên ngành hợp lệ.");
+            await LoadMajorsAsync();
             return Page();
         }
 
         if (string.IsNullOrWhiteSpace(OriginalValuesToken))
         {
             ModelState.AddModelError(string.Empty, "Phiên sửa không hợp lệ. Vui lòng tải lại biểu mẫu.");
+            await LoadMajorsAsync();
             return Page();
         }
 
@@ -78,12 +91,14 @@ public class EditModel : PageModel
         {
             _logger.LogWarning(ex, "Token phiên sửa sinh viên không hợp lệ cho {StudentId}.", id);
             ModelState.AddModelError(string.Empty, "Phiên sửa không hợp lệ. Vui lòng tải lại biểu mẫu.");
+            await LoadMajorsAsync();
             return Page();
         }
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "Không thể đọc phiên sửa sinh viên {StudentId}.", id);
             ModelState.AddModelError(string.Empty, "Phiên sửa không hợp lệ. Vui lòng tải lại biểu mẫu.");
+            await LoadMajorsAsync();
             return Page();
         }
 
@@ -91,6 +106,7 @@ public class EditModel : PageModel
         {
             ModelState.AddModelError(string.Empty, "Mã sinh viên không khớp với phiên sửa. Vui lòng mở lại hồ sơ.");
             Student.StudentId = id;
+            await LoadMajorsAsync();
             return Page();
         }
 
@@ -110,12 +126,13 @@ public class EditModel : PageModel
             ModelState.Clear();
             ModelState.AddModelError(string.Empty,
                 "Hồ sơ đã được thay đổi sau khi bạn mở biểu mẫu. Thông tin mới nhất đang được hiển thị; hãy kiểm tra rồi lưu lại.");
+            await LoadMajorsAsync();
             return Page();
         }
 
         existingStudent.FullName = Student.FullName;
         existingStudent.DateOfBirth = Student.DateOfBirth;
-        existingStudent.Major = Student.Major;
+        existingStudent.MajorId = Student.MajorId;
 
         try
         {
@@ -131,6 +148,7 @@ public class EditModel : PageModel
             ModelState.AddModelError(string.Empty,
                 "Hồ sơ đã bị xóa hoặc thay đổi bởi người khác. Vui lòng tải lại và kiểm tra trước khi lưu.");
             Student.StudentId = id;
+            await LoadMajorsAsync();
             return Page();
         }
         catch (DbUpdateException ex)
@@ -139,6 +157,7 @@ public class EditModel : PageModel
             _logger.LogError(ex, "Không thể cập nhật hồ sơ sinh viên {StudentId}.", id);
             ModelState.AddModelError(string.Empty, "Không thể lưu thay đổi. Vui lòng thử lại.");
             Student.StudentId = existingStudent.StudentId;
+            await LoadMajorsAsync();
             return Page();
         }
     }
@@ -148,13 +167,22 @@ public class EditModel : PageModel
         return _versionProtector.Protect(JsonSerializer.Serialize(StudentVersion.From(student)));
     }
 
+    private async Task LoadMajorsAsync()
+    {
+        Majors = await _context.Majors
+            .AsNoTracking()
+            .OrderBy(major => major.Name)
+            .Select(major => new SelectListItem(major.Name, major.MajorId))
+            .ToListAsync();
+    }
+
     private sealed record StudentVersion(
         string StudentId,
         string FullName,
         DateTime DateOfBirth,
-        string Major)
+        string MajorId)
     {
         public static StudentVersion From(Student student) =>
-            new(student.StudentId, student.FullName, student.DateOfBirth, student.Major);
+            new(student.StudentId, student.FullName, student.DateOfBirth, student.MajorId);
     }
 }

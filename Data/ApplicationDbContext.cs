@@ -14,6 +14,7 @@ namespace BTL_QuanLySinhVien.Data
 
         
         public DbSet<Student> Students { get; set; }
+        public DbSet<Major> Majors { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<Enrollment> Enrollments { get; set; }
@@ -21,6 +22,16 @@ namespace BTL_QuanLySinhVien.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<Major>()
+                .HasIndex(major => major.Name)
+                .IsUnique();
+
+            builder.Entity<Student>()
+                .HasOne(student => student.Major)
+                .WithMany(major => major.Students)
+                .HasForeignKey(student => student.MajorId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<ApplicationUser>(entity =>
             {

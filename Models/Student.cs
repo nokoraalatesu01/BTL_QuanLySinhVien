@@ -21,10 +21,12 @@ namespace BTL_QuanLySinhVien.Models
         [Display(Name = "Ngày sinh")]
         public DateTime DateOfBirth { get; set; } 
 
-        [Required(ErrorMessage = "Vui lòng nhập ngành.")]
-        [MaxLength(50, ErrorMessage = "Ngành không được vượt quá 50 ký tự.")]
-        [Display(Name = "Ngành")]
-        public string Major { get; set; } = string.Empty; 
+        [Required(ErrorMessage = "Vui lòng chọn chuyên ngành.")]
+        [StringLength(20)]
+        [Display(Name = "Chuyên ngành")]
+        public string MajorId { get; set; } = string.Empty;
+
+        public Major Major { get; set; } = null!;
 
         [Display(Name = "Số học phần đã đăng ký")]
         public ICollection<Enrollment>? Enrollments { get; set; }

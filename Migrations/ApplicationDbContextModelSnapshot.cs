@@ -164,6 +164,25 @@ namespace BTL_QuanLySinhVien.Migrations
                     b.ToTable("Enrollments");
                 });
 
+            modelBuilder.Entity("BTL_QuanLySinhVien.Models.Major", b =>
+                {
+                    b.Property<string>("MajorId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("MajorId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Majors");
+                });
+
             modelBuilder.Entity("BTL_QuanLySinhVien.Models.Student", b =>
                 {
                     b.Property<string>("StudentId")
@@ -177,12 +196,14 @@ namespace BTL_QuanLySinhVien.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Major")
+                    b.Property<string>("MajorId")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("StudentId");
+
+                    b.HasIndex("MajorId");
 
                     b.ToTable("Students");
                 });
@@ -378,6 +399,17 @@ namespace BTL_QuanLySinhVien.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("BTL_QuanLySinhVien.Models.Student", b =>
+                {
+                    b.HasOne("BTL_QuanLySinhVien.Models.Major", "Major")
+                        .WithMany("Students")
+                        .HasForeignKey("MajorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Major");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -432,6 +464,11 @@ namespace BTL_QuanLySinhVien.Migrations
             modelBuilder.Entity("BTL_QuanLySinhVien.Models.Course", b =>
                 {
                     b.Navigation("Enrollments");
+                });
+
+            modelBuilder.Entity("BTL_QuanLySinhVien.Models.Major", b =>
+                {
+                    b.Navigation("Students");
                 });
 
             modelBuilder.Entity("BTL_QuanLySinhVien.Models.Student", b =>

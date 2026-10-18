@@ -25,6 +25,7 @@ public class DetailsModel : PageModel
 
         var student = await _context.Students
             .Include(student => student.Enrollments)
+            .Include(student => student.Major)
             .FirstOrDefaultAsync(student => student.StudentId == id);
         if (student is null)
         {

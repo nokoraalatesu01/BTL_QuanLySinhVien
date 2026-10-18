@@ -21,7 +21,7 @@
         <dt>Ngày sinh</dt>
         <dd>@Model.Student.DateOfBirth.ToString("dd/MM/yyyy")</dd>
         <dt>Ngành</dt>
-        <dd>@Model.Student.Major</dd>
+        <dd>@Model.Student.Major.Name</dd>
         <dt>Số học phần đã đăng ký</dt>
         <dd>@(Model.Student.Enrollments?.Count ?? 0)</dd>
     </dl>

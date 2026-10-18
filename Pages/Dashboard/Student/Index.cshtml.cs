@@ -46,6 +46,7 @@ public class IndexModel : PageModel
 
         Profile = await _context.Students
             .AsNoTracking()
+            .Include(student => student.Major)
             .SingleOrDefaultAsync(student => student.StudentId == user.StudentId);
         HasLinkedProfile = Profile is not null;
         return Page();

@@ -49,6 +49,7 @@ public class IndexModel : PageModel
 
             Student = await students
                 .Include(student => student.Enrollments)
+                .Include(student => student.Major)
                 .OrderBy(student => student.StudentId)
                 .Skip((PageNumber - 1) * PageSize)
                 .Take(PageSize)
