@@ -51,13 +51,14 @@
                     <th>Vai trò</th>
                     <th>Xác nhận email</th>
                     <th>Trạng thái tài khoản</th>
+                    <th>Hồ sơ liên kết</th>
                 </tr>
             </thead>
             <tbody>
                 @if (Model.Accounts.Count == 0)
                 {
                     <tr>
-                        <td colspan="5">Chưa có tài khoản.</td>
+                        <td colspan="6">Chưa có tài khoản.</td>
                     </tr>
                 }
                 @foreach (var account in Model.Accounts)
@@ -71,6 +72,45 @@
                         <td>@(account.Roles.Count == 0 ? "Chưa gán vai trò" : string.Join(", ", account.Roles))</td>
                         <td>@(account.EmailConfirmed ? "Đã xác nhận" : "Chưa xác nhận")</td>
                         <td>@(isLocked ? "Đang khóa" : "Không bị khóa")</td>
+                        <td>
+                            @if (account.CanManageLink)
+                            {
+                                <form method="post" asp-page-handler="UpdateLink">
+                                    <input type="hidden" name="userId" value="@account.Id" />
+                                    <label class="control-label" for="profile-@account.Id">
+                                        @(account.Roles[0] == "Student" ? "Sinh viên" : "Giảng viên")
+                                    </label>
+                                    <select id="profile-@account.Id" name="profileId" class="form-control">
+                                        <option value="" selected="@(account.LinkedProfileId is null)">Chưa liên kết</option>
+                                        @foreach (var profile in account.AvailableProfiles)
+                                        {
+                                            <option value="@profile.Id" selected="@(profile.Id == account.LinkedProfileId)">
+                                                @profile.Id — @profile.Name
+                                            </option>
+                                        }
+                                    </select>
+                                    <p class="page-description">
+                                        @if (account.LinkedProfileId is null)
+                                        {
+                                            <span>Chưa liên kết hồ sơ.</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@account.LinkedProfileType: @account.LinkedProfileId — @account.LinkedProfileName</span>
+                                        }
+                                    </p>
+                                    <button type="submit" class="button button-secondary">Lưu liên kết</button>
+                                </form>
+                            }
+                            else if (account.LinkedProfileId is not null)
+                            {
+                                <span>@account.LinkedProfileType: @account.LinkedProfileId — @account.LinkedProfileName</span>
+                            }
+                            else
+                            {
+                                <span>Không áp dụng</span>
+                            }
+                        </td>
                     </tr>
                 }
             </tbody>

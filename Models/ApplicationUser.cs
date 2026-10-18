@@ -7,6 +7,10 @@ namespace BTL_QuanLySinhVien.Models
         [ProtectedPersonalData]
         public string? FullName { get; set; }
 
+        public string? StudentId { get; set; }
+
+        public string? TeacherId { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

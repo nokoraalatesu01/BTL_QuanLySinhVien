@@ -22,7 +22,34 @@ namespace BTL_QuanLySinhVien.Data
         {
             base.OnModelCreating(builder);
 
-           
+            builder.Entity<ApplicationUser>(entity =>
+            {
+                entity.Property(user => user.StudentId).HasMaxLength(450);
+                entity.Property(user => user.TeacherId).HasMaxLength(450);
+
+                entity.HasOne<Student>()
+                    .WithOne()
+                    .HasForeignKey<ApplicationUser>(user => user.StudentId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne<Teacher>()
+                    .WithOne()
+                    .HasForeignKey<ApplicationUser>(user => user.TeacherId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasIndex(user => user.StudentId)
+                    .IsUnique()
+                    .HasFilter("[StudentId] IS NOT NULL");
+
+                entity.HasIndex(user => user.TeacherId)
+                    .IsUnique()
+                    .HasFilter("[TeacherId] IS NOT NULL");
+
+                entity.ToTable("AspNetUsers", table =>
+                    table.HasCheckConstraint(
+                        "CK_AspNetUsers_ProfileLinkExclusive",
+                        "[StudentId] IS NULL OR [TeacherId] IS NULL"));
+            });
         }
     }
 }

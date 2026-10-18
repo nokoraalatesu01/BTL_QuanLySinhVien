@@ -73,6 +73,14 @@ namespace BTL_QuanLySinhVien.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("StudentId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("TeacherId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -90,7 +98,18 @@ namespace BTL_QuanLySinhVien.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.HasIndex("StudentId")
+                        .IsUnique()
+                        .HasFilter("[StudentId] IS NOT NULL");
+
+                    b.HasIndex("TeacherId")
+                        .IsUnique()
+                        .HasFilter("[TeacherId] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_AspNetUsers_ProfileLinkExclusive", "[StudentId] IS NULL OR [TeacherId] IS NULL");
+                        });
                 });
 
             modelBuilder.Entity("BTL_QuanLySinhVien.Models.Course", b =>
@@ -171,6 +190,7 @@ namespace BTL_QuanLySinhVien.Migrations
             modelBuilder.Entity("BTL_QuanLySinhVien.Models.Teacher", b =>
                 {
                     b.Property<string>("TeacherId")
+                        .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AcademicTitle")
@@ -324,6 +344,19 @@ namespace BTL_QuanLySinhVien.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("BTL_QuanLySinhVien.Models.ApplicationUser", b =>
+                {
+                    b.HasOne("BTL_QuanLySinhVien.Models.Student", null)
+                        .WithOne()
+                        .HasForeignKey("BTL_QuanLySinhVien.Models.ApplicationUser", "StudentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("BTL_QuanLySinhVien.Models.Teacher", null)
+                        .WithOne()
+                        .HasForeignKey("BTL_QuanLySinhVien.Models.ApplicationUser", "TeacherId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("BTL_QuanLySinhVien.Models.Enrollment", b =>
